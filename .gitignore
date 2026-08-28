@@ -1,0 +1,6 @@
+.DS_Store
+/jobs/
+/frameset-replay/jobs/
+
+# Codex/Claude session rollouts carry the agent's own OAuth tokens.
+jobs/**/agent/sessions/
