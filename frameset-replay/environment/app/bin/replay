@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Interface is unchanged: `replay <member-number>` -> one JSON line on stdout.
+/usr/local/bin/start-console.sh || exit 1
+exec runuser -u replay -- node /app/src/replay.js "$@"
