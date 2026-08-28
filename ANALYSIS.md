@@ -369,12 +369,14 @@ Evidence preserved under `jobs/` confirms the following commands and results:
 
 The field rename from `advanceBasis` to `availableForWithdrawal` is covered by
 the two post-rename gates. The Opus probe rewards are not counted as verifier failures: the agent runs did
-not complete normally. No qualifying GPT-5.6-sol run, `/cheat` run, or current
-post-rename validation is claimed here. The required matrix therefore remains:
-three genuine verifier failures for each of GPT-5.6-sol xhigh and Claude Opus 5
-max, plus one reward-0 cheat trial for each. Because prior frontier trials often
-passed this task, achieving three genuine failures may require redesign rather
-than repeated sampling; infrastructure failures cannot satisfy the assignment.
+not complete normally. The completed GPT-5.6-sol batch is qualifying and contains
+two genuine verifier failures; it is not a contract-ambiguity result. No
+qualifying current Claude batch or `/cheat` run is claimed here. The required
+matrix therefore remains: one additional genuine GPT-5.6-sol xhigh failure,
+three genuine Claude Opus 5 max failures, and one reward-0 cheat trial for each.
+Earlier results from prior task versions do not invalidate the discrimination
+demonstrated by the hardened credit-memo tree, and infrastructure failures cannot
+satisfy the assignment.
 
 Current upstream review requirements also make this tree structurally stale:
 TB3 now requires a separate verifier container, the exact current canary,
