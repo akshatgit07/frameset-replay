@@ -1,0 +1,4 @@
+{"member":"12345","variant":"plain","accounts":[
+ {"name":"CHECKING","status":"active","available":"$2,140.09"},
+ {"name":"SAVINGS","status":"active","available":"$4,182.60"},
+ {"name":"MONEY MARKET","status":"active","available":"$11,003.44"}]}
