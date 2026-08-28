@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0",
+  "workflowId": "savings-available-balance",
+  "approvalState": "approved",
+  "entryUrl": "http://localhost:8080/",
+  "allowedOrigins": ["http://localhost:8080"],
+  "allowedRoutes": ["/", "/nav", "/search", "/lookup"],
+  "inputs": { "memberId": { "from": "input", "key": "memberId" } },
+  "declaredOutcomes": ["member_not_found", "no_savings_product", "permission_denied"],
+  "outputs": ["availableBalance"]
+}
