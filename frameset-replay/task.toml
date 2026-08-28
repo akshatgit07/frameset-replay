@@ -1,0 +1,167 @@
+schema_version = "1.0"
+
+[task]
+name = "akshatgit07/frameset-replay"
+version = "1.0.0"
+description = "Repair a deterministic replay runtime so it extracts an account balance from a hostile legacy frameset console and never reports a business outcome it has no evidence for."
+authors = [{ name = "Akshat Manral", email = "akshatnov700@gmail.com" }]
+keywords = ["browser-automation", "dom", "determinism", "partial-observability","financial data"]
+
+[metadata]
+author_name = "Akshat Manral"
+author_email = "akshatnov700@gmail.com"
+author_organization = "independent"
+difficulty = "hard"
+category = "software"
+tags = ["browser-automation", "legacy-systems", "verification", "partial-observability"]
+expert_time_estimate_hours = 3
+
+# The rubric scores each of these three as a separate criterion. Be specific;
+# generic text fails review.
+difficulty_explanation = """
+The repair itself is ordinary engineering. The difficulty is that the visible
+environment underdetermines the solution, and every wrong answer is plausible
+rather than loud. The grid carries three columns that are all "the balance" in
+a servicing console — ledger, available and collected — so positional or
+first-match reads can return another column, another account row, a hidden
+duplicate, or a different household member's SAVINGS balance instead of
+failing. Ownership is a second axis of the same problem: an account held
+jointly IS the member's and must be reported, while one held as custodian for a
+minor is the minor's and must not be, and neither is signalled by anything but
+the visible text of the account cell. The solver must ground the result in the
+queried member's account portfolio, exact account identity, ownership and
+status, and the Available Balance header. The hardest case requires the agent to separate 'the
+expected content is absent' from 'the expected content was never observed' — the
+page renders a header-identical table that is not the account grid — a
+distinction the default fixture never exercises, and which determines whether a
+confident and incorrect business outcome is reported for a real account.
+
+The second mode moves the difficulty off the page entirely. The amount available for withdrawal
+cannot be read from any cell: it depends on which written record governs. The
+case file holds a funds-availability policy, a deposit log, a written hold and
+an email thread, and the correct figure requires deciding that a local check
+inside the availability window is not yet collected, that a hold whose expiry
+has passed no longer binds, that a later email releasing a hold displaces the
+notice that placed it, and that an email about a different member's hold
+displaces nothing. Each of those is a judgement about which record applies,
+made from documents that state their facts without stating their precedence.
+"""
+
+solution_explanation = """
+Ground every target in visible text and table geometry: locate the grid by its
+header row, resolve the balance column by header text rather than index, select
+the account row by a predicate over its own cells rather than by page-wide text
+search, and require exactly one visible match before reading. Wait on the frame
+that is actually navigating rather than on the frameset's main frame, which
+finishes loading before any result exists. Classify a declared outcome only
+after positively confirming the surface that would carry its evidence.
+Reference implementation is ~170 lines of JavaScript in solution/replay.fixed.js.
+"""
+
+verification_explanation = """
+Ground truth for the credit-memo cases is derived from the reference
+implementation rather than from an independent source, and is disclosed as such.
+The availability schedule is supplied to the agent as a document in the case
+file, so within the task the governing authority is the written policy rather
+than external practice -- which is how funds-availability policies work, since
+institutions publish their own within regulatory limits. The schedule's shape
+follows Regulation CC (12 CFR 229): cash and wire collected on the date of
+deposit, on-us checks one day later, local checks two days later, matching the
+regulation's next-business-day and second-business-day ordering. It departs from
+Reg CC in one respect, deliberately: days are counted as calendar days rather
+than business days, because business-day arithmetic requires a holiday calendar
+and would make the verifier non-deterministic. The $225 next-day availability
+rule and the exception-hold limits are not modelled.
+
+The funds-availability cases are graded against figures the container never sees:
+balances, members, hold amounts and deposit amounts are all derived at
+verification time from the hidden seed, and the case-file documents are
+regenerated per fixture from the same values. Each case isolates one
+precedence question -- collectibility by instrument type, an expired hold, a
+later record superseding an earlier one, a record about another member -- and
+each asserts both the correct figure and the specific wrong figure that the
+most plausible shortcut produces, so a solution that reads the console alone
+or the hold notice alone fails on the value rather than on the shape.
+
+Tests generate member numbers, balances, and page variants at verification time
+from a seed the container never sees, and install them over an authenticated
+control plane, so no expected value exists on disk. Each variant is a static
+HTML difference (row order, column position, similar account names, joint and
+custodial ownership annotations, household ownership context, non-visible
+duplicates, a header-identical non-portfolio table) plus one bounded response
+delay, so the verifier is deterministic; the ledger and collected figures are
+derived from the available figure rather than generated, so no balance column
+introduces nondeterminism. The console and artifact are checksummed at build
+time and
+re-verified before grading, replay's own request log is audited for routes and
+origins outside the artifact's allowlists, and evidence output is scanned for
+the generated values.
+"""
+
+relevant_experience = """
+Built a computer-use automation system
+with LLM-driven discovery, typed capability artifacts, and deterministic replay
+against a hostile UI, including the locator and classification layers this task
+"""
+
+# Network policy is phase-scoped, not global.
+#
+# Harbor installs the agent during trial preparation, BEFORE the agent phase
+# begins (harbor/trial/trial.py:450 vs :487), so installation runs under this
+# baseline. A "no-network" baseline blocks the install itself, not just the
+# agent's own traffic — codex dies on `apt-get`/nvm/npm before the task starts.
+#
+# The property the task actually needs is that *replay* makes no external
+# calls, and that is enforced in-process by the artifact's allowedRoutes plus
+# page.route interception, not by the container. So the baseline allows only
+# what an agent needs to be installed and to reach its model; the verifier
+# runs with no network at all.
+[environment]
+build_timeout_sec = 900
+cpus = 2
+memory_mb = 4096
+storage_mb = 10240
+network_mode = "allowlist"
+allowed_hosts = [
+  # agent installation: nvm bootstrap script, then `git clone` of the nvm repo,
+  # then the node runtime and the npm registry
+  "raw.githubusercontent.com",
+  "objects.githubusercontent.com",
+  "github.com",
+  "codeload.github.com",
+  "nodejs.org",
+  "registry.npmjs.org",
+  # model API (codex, auth_mode=chatgpt) + OAuth token refresh
+  "chatgpt.com",
+  "auth.openai.com",
+  "api.openai.com",
+  # Claude Code install (bootstrap.sh) + model API
+  "downloads.claude.ai",
+  "api.anthropic.com",
+]
+
+# During its own run the agent reaches its model and nothing else — no package
+# registries, no arbitrary fetches.
+#
+# api.anthropic.com was missing here, and that was the "Modal 400". Claude Code
+# installs without network (its dependency set is curl/bash/nodejs/npm/procps,
+# all in the base image), reaches first inference, and its request to
+# api.anthropic.com is refused by this allowlist. A real Anthropic 400 carries
+# a JSON error body; the observed 400 had none and burned zero tokens, which is
+# an interception signature, not a model response.
+[agent]
+timeout_sec = 2400
+network_mode = "allowlist"
+allowed_hosts = [
+  "chatgpt.com",
+  "auth.openai.com",
+  "api.openai.com",
+  "api.anthropic.com",
+  "downloads.claude.ai",
+]
+
+# The verifier is fully offline: pytest is baked into /opt/venv and the console
+# is reached over loopback, which an outbound policy does not affect.
+[verifier]
+timeout_sec = 900
+network_mode = "no-network"
