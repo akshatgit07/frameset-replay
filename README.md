@@ -5,13 +5,15 @@ that it extracts an account balance from a hostile legacy frameset console, neve
 reports a business outcome the page gave it no evidence for, and reconciles the
 console against the member's written case file to produce a credit memo.
 
-> **This task does not meet the difficulty bar.** `claude-opus-5` at maximum
-> effort solves it **3 trials out of 3**; `gpt-5.6-sol` solved it 1 of 3, and the
-> two failures there turned on a contract ambiguity rather than on the property
-> being measured. Every hardening route tried — process hygiene, request budgets,
-> exact-value boundary batteries — was cleared incidentally by a frontier model.
-> The task is correct, deterministic and rule-compliant; it is not discriminating.
-> The full evidence, including every void run and the reasoning, is in
+> **The current task produced two genuine frontier-model failures in the completed
+> three-trial `gpt-5.6-sol` batch.** Both were substantive case-file
+> precedence/identity errors in the intended credit-memo difficulty layer; they
+> were not infrastructure failures or contract-ambiguity failures. Earlier Claude
+> results came from prior task versions and must not be used to erase the signal
+> introduced by the later hardening. The full required acceptance matrix is still
+> incomplete: the Codex batch yielded two failures rather than the required three,
+> and the current Claude batch was blocked before valid verifier results were
+> produced. The full evidence, including every void run and the reasoning, is in
 > [`ANALYSIS.md`](ANALYSIS.md). Read that before deciding what to do with this task.
 
 ## What it measures
